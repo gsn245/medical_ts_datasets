@@ -62,8 +62,12 @@ class MIMICReader:
     def __init__(self, dataset_dir, listfile, blacklist=None):
         """Reader for phenotyping dataset of the MIMIC-III benchmarks."""
         self.dataset_dir = dataset_dir
-        with tf.io.gfile.GFile(listfile, 'r') as f:
-            self.instances = pd.read_csv(f, header=0, sep=',')
+        print(dataset_dir)
+        print(listfile)
+        # with tf.io.gfile.GFile(listfile, 'r') as f:
+        #     print(f.name)
+        #     self.instances = pd.read_csv(f, header=0, sep=',')
+        self.instances = pd.read_csv(listfile, header=0, sep=',')
 
         if blacklist is not None:
             # Remove instances which are on the blacklist
@@ -78,8 +82,9 @@ class MIMICReader:
             filename: Filename from which to read data.
 
         """
-        with tf.io.gfile.GFile(filename, 'r') as f:
-            data = pd.read_csv(f, header=0, sep=',')
+        # with tf.io.gfile.GFile(filename, 'r') as f:
+        #     data = pd.read_csv(f, header=0, sep=',')
+        data = pd.read_csv(filename, header=0, sep=',')
         time = data['Hours']
         # Sometimes the demographics might be NaN.
         # Thus we might need to replace those with a placeholder number (in our

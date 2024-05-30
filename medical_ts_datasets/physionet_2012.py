@@ -194,12 +194,18 @@ class Physionet2012DataReader(Sequence):
 class Physionet2012(MedicalTsDatasetBuilder):
     """Dataset of the PhysioNet/Computing in Cardiology Challenge 2012."""
 
-    VERSION = tfds.core.Version('1.0.10')
+    VERSION = None
     has_demographics = True
     has_vitals = True
     has_lab_measurements = False
     has_interventions = False
     default_target = 'In-hospital_death'
+
+    def __init__(self, **kwargs):
+        self.split = kwargs.get('split', 1)
+        Physionet2012.VERSION = tfds.core.Version('1.0.{}'.format(kwargs.get('split', 1)))
+        super().__init__()
+
 
     def _info(self):
         return MedicalTsDatasetInfo(
@@ -242,27 +248,28 @@ class Physionet2012(MedicalTsDatasetBuilder):
 
         return [
             tfds.core.SplitGenerator(
-                name=tfds.Split.TRAIN,
+                name="train",
                 gen_kwargs={
                     'data_dirs': [a_path, b_path, c_path],
-                    'outcome_file': os.path.join(RESOURCES, 'train_listfile.csv')
+                    'outcome_file': os.path.join(RESOURCES, 'train_listfile_{}.csv'.format(self.split))
                 },
             ),
             tfds.core.SplitGenerator(
-                name=tfds.Split.VALIDATION,
+                name="validation",
                 gen_kwargs={
                     'data_dirs': [a_path, b_path, c_path],
-                    'outcome_file': os.path.join(RESOURCES, 'val_listfile.csv')
+                    'outcome_file': os.path.join(RESOURCES, 'val_listfile_{}.csv'.format(self.split))
                 },
             ),
             tfds.core.SplitGenerator(
-                name=tfds.Split.TEST,
+                name="test",
                 gen_kwargs={
                     'data_dirs': [a_path, b_path, c_path],
-                    'outcome_file': os.path.join(RESOURCES, 'test_listfile.csv')
-                }
-            )
+                    'outcome_file': os.path.join(RESOURCES, 'test_listfile_{}.csv'.format(self.split))
+                },
+            ),
         ]
+
 
     def _generate_examples(self, data_dirs, outcome_file):
         """Yield examples."""

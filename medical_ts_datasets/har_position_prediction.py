@@ -8,6 +8,9 @@ from .util import MedicalTsDatasetBuilder, MedicalTsDatasetInfo
 
 
 _CITATION = """
+
+ADD HAR CITATION later if time
+
 @article{Harutyunyan2019,
   author={Harutyunyan, Hrayr and Khachatrian, Hrant and Kale, David C.
           and Ver Steeg, Greg and Galstyan, Aram},
@@ -36,7 +39,7 @@ _CITATION = """
 """
 
 _DESCRIPTION = """
-In hospital mortality prediction task of the MIMIC-III benchmarks.
+Position prediction task from sensor movement data (3 sensors).
 """
 
 
@@ -45,6 +48,7 @@ class MIMICMortalityReader(MIMICReader):
 
     # Blacklisted instances due to unusually many observations compared to the
     # overall distribution.
+    """
     blacklist = [
         # Criterion for exclusion: more than 1000 distinct timepoints
         # In training data
@@ -68,7 +72,8 @@ class MIMICMortalityReader(MIMICReader):
         '19223_episode2_timeseries.csv', '58854_episode1_timeseries.csv',
         '80345_episode1_timeseries.csv', '48380_episode1_timeseries.csv'
     ]
-
+    """
+    
     def __init__(self, dataset_dir, listfile):
         """Initialize MIMIC-III mortality reader."""
         super().__init__(dataset_dir, listfile, self.blacklist)

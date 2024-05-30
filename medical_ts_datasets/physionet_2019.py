@@ -116,7 +116,8 @@ class Physionet2019DataReader(Sequence):
             'lab_measurements': labs.values.astype(self.data_dtype),
             'targets': {
                 'Sepsis':
-                    sepsis_label.values.astype(np.int32)[:, np.newaxis]
+                    #sepsis_label.values.astype(np.int32)
+                    np.max(sepsis_label.values.astype(np.int32))
             },
             'metadata': {
                 'patient_id': record_id
@@ -131,7 +132,8 @@ class Physionet2019DataReader(Sequence):
 class Physionet2019(MedicalTsDatasetBuilder):
     """Dataset of the PhysioNet/Computing in Cardiology Challenge 2019."""
 
-    VERSION = tfds.core.Version('1.0.3')
+    #VERSION = tfds.core.Version('1.0.3')
+    VERSION = None
 
     has_demographics = True
     has_vitals = True
@@ -139,12 +141,18 @@ class Physionet2019(MedicalTsDatasetBuilder):
     has_interventions = False
     default_target = 'Sepsis'
 
+    def __init__(self, **kwargs):
+        self.split = kwargs.get('split', 1)
+        Physionet2019.VERSION = tfds.core.Version('1.0.{}'.format(kwargs.get('split', 1)))
+        super().__init__()
+
     def _info(self):
         return MedicalTsDatasetInfo(
             builder=self,
-            targets={
-                'Sepsis': tfds.features.Tensor(
-                    shape=(None, 1), dtype=tf.int32)
+            targets={                
+                'Sepsis': tfds.features.ClassLabel(num_classes=2)
+                # 'Sepsis': tfds.features.Tensor(
+                #     shape=(None, 1), dtype=tf.int32)
             },
             default_target='Sepsis',
             demographics_names=Physionet2019DataReader.expanded_static_features,
@@ -166,24 +174,30 @@ class Physionet2019(MedicalTsDatasetBuilder):
 
         return [
             tfds.core.SplitGenerator(
-                name=tfds.Split.TRAIN,
+                #name=tfds.Split.TRAIN,
+                name="train",
                 gen_kwargs={
                     'data_paths': [train_1_path, train_2_path],
-                    'listfile': os.path.join(RESOURCES, 'train_listfile.csv')
+                    #'listfile': os.path.join(RESOURCES, 'train_listfile.csv')
+                    'listfile': os.path.join(RESOURCES, 'train_listfile_{}.csv'.format(self.split))
                 }
             ),
             tfds.core.SplitGenerator(
-                name=tfds.Split.VALIDATION,
+                #name=tfds.Split.VALIDATION,
+                name="validation",
                 gen_kwargs={
                     'data_paths': [train_1_path, train_2_path],
-                    'listfile': os.path.join(RESOURCES, 'val_listfile.csv')
+                    #'listfile': os.path.join(RESOURCES, 'val_listfile.csv')
+                    'listfile': os.path.join(RESOURCES, 'val_listfile_{}.csv'.format(self.split))
                 }
             ),
             tfds.core.SplitGenerator(
-                name=tfds.Split.TEST,
+                #name=tfds.Split.TEST,
+                name="test",
                 gen_kwargs={
                     'data_paths': [train_1_path, train_2_path],
-                    'listfile': os.path.join(RESOURCES, 'test_listfile.csv')
+                    #'listfile': os.path.join(RESOURCES, 'test_listfile.csv')
+                    'listfile': os.path.join(RESOURCES, 'test_listfile_{}.csv'.format(self.split))
                 }
             )
         ]
